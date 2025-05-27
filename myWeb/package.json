@@ -1,0 +1,8 @@
+{
+  "name": "my-web",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "serve",
+    "build": "echo 'No build required'"
+  }
+}
