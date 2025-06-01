@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./neoAvater.ico" type="image/x-icon">
+    <title>华亭暂客 - 终端界面 v3.2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700&family=Exo+2:wght@300;400;700&family=Roboto:wght@300;400&family=Gruppo&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(45deg, #030010, #0a001f, #001a35, #003350);
+            --primary-glow-color: #00ffff; /* Cyan */
+            --secondary-glow-color: #FFD700; /* Gold */
+            --accent-color-dim: #7f00ff; 
+            --text-color-main: rgba(230, 230, 255, 0.95);
+            --text-color-dim: rgba(180, 180, 220, 0.8);
+            --text-color-boot: #00ff99; 
+
+            --border-color-hud: rgba(0, 255, 255, 0.3);
+            --border-color-hud-light: rgba(0, 255, 255, 0.7);
+            --border-color-hud-active: var(--primary-glow-color);
+            --content-bg: rgba(5, 10, 25, 0.35);
+            
+            /* Keeping --font-title for other potential H1s, but overriding for .gold-text */
+            --font-title: 'Audiowide', 'Orbitron', cursive; 
+            --font-heiti: "SimHei", "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", sans-serif; /* 黑体 Font Stack */
+            --font-button: 'Exo 2', 'Gruppo', sans-serif;
+            --font-body: 'Roboto', 'Microsoft YaHei', sans-serif;
+            --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+
+            /* --glow-text-secondary is now only used if other elements need gold glow */
+            /* For H1 title, glow is removed directly */
+            --glow-text-primary: 0 0 5px var(--primary-glow-color), 0 0 10px var(--primary-glow-color), 0 0 15px var(--primary-glow-color);
+            --glow-text-secondary-definition: 0 0 6px var(--secondary-glow-color), 0 0 12px var(--secondary-glow-color), 0 0 18px var(--secondary-glow-color), 0 0 2px #fff;
+            
+            --glow-box-primary: 0 0 12px var(--primary-glow-color), 0 0 20px var(--primary-glow-color);
+            --glow-box-primary-inset: inset 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: gradientBG 25s ease infinite;
+            font-family: var(--font-body);
+            color: var(--text-color-main);
+            overflow: hidden; 
+            perspective: 1500px; 
+        }
+        
+        #main-wrapper { 
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out 0.5s;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #main-wrapper.loaded {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        body::before { 
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--border-color-hud, rgba(0,120,120,0.05)) 0.5px, transparent 0.5px),
+                linear-gradient(90deg, var(--border-color-hud, rgba(0,120,120,0.05)) 0.5px, transparent 0.5px);
+            background-size: 30px 30px; z-index: -2; opacity: 0.4;
+            animation: backgroundGridPulse 8s infinite alternate;
+        }
+        @keyframes backgroundGridPulse { from { opacity: 0.2; } to { opacity: 0.5; } }
+
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+
+        .content {
+            display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-start; 
+            width: 90%; max-width: 1350px; margin: 20px auto; padding: 25px;
+            border: 1px solid var(--border-color-hud);
+            background: var(--content-bg); backdrop-filter: blur(8px); 
+            box-shadow: var(--glow-box-primary), var(--glow-box-primary-inset), 0 0 60px rgba(0,0,0,0.6);
+            position: relative;
+            transform-style: preserve-3d; 
+            transition: transform 0.1s ease-out; 
+        }
+        
+        .content::before, .content::after {
+            content: ''; position: absolute; width: 25px; height: 25px;
+            border-color: var(--border-color-hud); transition: all 0.4s ease; pointer-events: none;
+            animation: hudCornerPulse 3s infinite ease-in-out;
+        }
+        .content::before { top: -3px; left: -3px; border-top: 3px solid; border-left: 3px solid; }
+        .content::after { bottom: -3px; right: -3px; border-bottom: 3px solid; border-right: 3px solid; animation-delay: 0.3s; }
+
+        @keyframes hudCornerPulse {
+            0%, 100% { border-color: var(--border-color-hud); transform: scale(1); }
+            50% { border-color: var(--border-color-hud-active); transform: scale(1.15); }
+        }
+
+        .left-section, .right-section {
+            flex: 1; padding: 20px; min-width: 300px; margin: 10px; position: relative;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            transform: translateZ(20px); 
+        }
+
+        .avatar {
+            width: 160px; height: 160px; object-fit: cover; margin-bottom: 2rem;
+            clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+            animation: pulseGlowAvatar 2.5s infinite alternate, avatarInterference 13s linear infinite;
+            box-shadow: 0 0 5px var(--primary-glow-color);
+            transform: translateZ(40px); 
+            transition: transform 0.3s ease;
+        }
+        .avatar:hover { transform: translateZ(50px) scale(1.05); } 
+
+        @keyframes pulseGlowAvatar {
+            from { box-shadow: 0 0 10px var(--primary-glow-color), 0 0 15px var(--primary-glow-color); filter: brightness(1); }
+            to { box-shadow: 0 0 20px var(--primary-glow-color), 0 0 30px var(--primary-glow-color), 0 0 5px #fff; filter: brightness(1.1); }
+        }
+        @keyframes avatarInterference {
+            0%, 96% { /* Base state handled by pulseGlowAvatar transform and other properties */ }
+            96.2% { opacity: 0.8; transform: translateZ(40px) translateX(-5px) skewX(-3deg); filter: contrast(1.5) brightness(0.7); }
+            96.4% { opacity: 1; transform: translateZ(40px) translateX(4px) skewX(2deg); filter: contrast(0.7) brightness(1.3); }
+            96.6% { opacity: 0.9; transform: translateZ(40px) translateX(-2px) skewX(-1deg); }
+            96.8%, 100% { opacity: 1; filter: brightness(1); /* Reset filter from pulseGlow, transform is reset by pulseGlow or base */ }
+        }
+
+
+        h1 {
+            /* font-family is now set on .gold-text specifically if different */
+            font-size: clamp(2.2rem, 5vw, 3rem); margin-bottom: 1.5rem;
+            line-height: 1.3; text-transform: uppercase; 
+            /* color: var(--text-color-main); Color will be set by .gold-text or other specific classes */
+            transform: translateZ(30px);
+        }
+        h1 .revealable-line { 
+            display: block; opacity: 0; transform: translateY(30px) scale(0.9);
+            animation-name: revealTextLine;
+            animation-duration: 0.8s;
+            animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+            animation-fill-mode: forwards;
+            font-family: var(--font-title); /* Default title font, overridden by .gold-text */
+            color: var(--text-color-main); /* Default color, overridden by .gold-text */
+        }
+        h1 .revealable-line:nth-child(1) { animation-delay: 0.2s; }
+        h1 .revealable-line:nth-child(2) { animation-delay: 0.5s; }
+        h1 .revealable-line:nth-child(3) { animation-delay: 0.8s; }
+
+        /* MODIFIED: Style for the H1 title lines (no glow, Heiti font) */
+        h1 .revealable-line.gold-text {
+            font-family: var(--font-heiti); /* 黑体 */
+            color: var(--secondary-glow-color); /* Gold color */
+            text-shadow: none; /* NO GLOW */
+            font-size: clamp(2rem, 4.5vw, 2.6rem); /* Slightly adjust if Heiti appears larger/smaller */
+            font-weight: 600; /* Common weight for Heiti titles */
+        }
+
+        @keyframes revealTextLine { to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        /* MODIFIED: .education layout for neat alignment */
+        .education {
+            font-size: clamp(1rem, 2.5vw, 1.15rem); color: var(--text-color-dim); margin-bottom: 2rem;
+            line-height: 1.7; letter-spacing: 0.8px; 
+            width: 100%; 
+            max-width: 620px; /* Slightly adjusted max-width for better balance */
+            opacity:0; animation: fadeInEducation 1s ease-out 1.5s forwards;
+            transform: translateZ(25px);
+            display: flex;
+            justify-content: center; /* Center the whole two-column block if max-width is less than parent */
+            align-items: flex-start; 
+            gap: 30px; /* Adjusted gap */
+        }
+        .education .edu-column {
+            flex: 1; /* Allow columns to take equal space */
+            /* flex-basis: calc(50% - 15px); Remove if using flex:1 and relying on gap */
+            text-align: left; /* BOTH columns left-aligned */
+        }
+        /* Removed: .education .edu-column:first-child { text-align: right; } */
+
+
+        @keyframes fadeInEducation { to { opacity: 1; } }
+
+        .button-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.8rem; width: 100%; max-width: 600px; margin-top: 1.5rem;
+            transform: translateZ(20px);
+        }
+
+        .nav-button {
+            font-family: var(--font-button); padding: 15px 22px;
+            background: rgba(0, 255, 255, 0.05); 
+            border: 2px solid var(--border-color-hud);
+            color: var(--text-color-dim); font-size: 1.05rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative; overflow: hidden; border-radius: 4px;
+            box-shadow: var(--glow-box-primary-inset);
+            animation: fadeInButton 0.5s ease-out forwards, pulseButtonBorder 3s infinite alternate-reverse;
+            opacity:0; transform: translateY(10px) translateZ(10px); 
+        }
+        .button-container .nav-button:nth-child(1) { animation-delay: 1.8s, 1.8s; }
+        .button-container .nav-button:nth-child(2) { animation-delay: 1.95s, 1.95s; }
+        .button-container .nav-button:nth-child(3) { animation-delay: 2.1s, 2.1s; }
+        .button-container .nav-button:nth-child(4) { animation-delay: 2.25s, 2.25s; }
+
+        @keyframes fadeInButton { to { opacity: 1; transform: translateY(0) translateZ(10px); } }
+        @keyframes pulseButtonBorder {
+            from { border-color: var(--border-color-hud); box-shadow: var(--glow-box-primary-inset), 0 0 3px rgba(0,255,255,0.2); }
+            to { border-color: var(--border-color-hud-active); box-shadow: var(--glow-box-primary-inset), 0 0 8px var(--primary-glow-color), 0 0 3px var(--primary-glow-color); }
+        }
+
+        .nav-button::before { 
+            content: ''; position: absolute; top: 0; left: -160%; width: 80%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            transform: skewX(-25deg); transition: left 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .nav-button:hover {
+            color: var(--primary-glow-color); border-color: var(--border-color-hud-active);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: var(--glow-box-primary), var(--glow-box-primary-inset);
+            transform: translateY(-4px) translateZ(15px) scale(1.03); 
+            animation-play-state: paused; 
+        }
+        .nav-button:hover::before { left: 160%; }
+        .nav-button:active { transform: translateY(-1px) translateZ(12px) scale(0.98); }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        #boot-sequence {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #010008; 
+            z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            font-family: var(--font-mono); color: var(--text-color-boot);
+            transition: opacity 0.8s ease-out 0.5s, visibility 0.8s ease-out 0.5s; 
+        }
+        #boot-sequence.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        #boot-text-container { margin-bottom: 20px; min-height: 50px; }
+        #boot-text { font-size: 1.2em; white-space: pre; text-align: center; }
+        #boot-text::after { content: '_'; animation: blinkCursor 0.7s infinite step-end; }
+        #boot-loader-container { width: 60%; max-width: 400px; height: 15px; border: 1px solid var(--text-color-boot); margin-bottom: 20px; padding: 2px; }
+        #boot-loader-bar { width: 0%; height: 100%; background: var(--text-color-boot); transition: width 0.2s linear; }
+        #boot-status { font-size: 0.9em; color: var(--text-color-dim); }
+        @keyframes blinkCursor { 50% { opacity: 0; } }
+
+        @media (max-width: 900px) {
+            .content { flex-direction: column; align-items: center; padding: 15px; }
+            .left-section, .right-section { min-width: 95%; margin: 15px 0; }
+            .button-container { grid-template-columns: 1fr; max-width: 380px; }
+            /* MODIFIED: .education responsive stacking */
+            .education { flex-direction: column; align-items: center; gap: 10px; text-align:center; max-width: 90%;}
+            .education .edu-column { flex-basis: auto; width: auto; text-align: center; max-width: 100%; }
+        }
+         @media (max-width: 480px) {
+            .avatar { width: 110px; height: 110px; }
+            h1 .revealable-line.gold-text { font-size: 1.8rem; } /* Adjust Heiti size for mobile */
+            .education { font-size: 0.85rem; gap: 5px; }
+            .nav-button { font-size: 0.9rem; padding: 12px 15px; letter-spacing: 1.5px; }
+            #boot-text { font-size: 1em; }
+         }
+    </style>
+</head>
+<body>
+    <div id="boot-sequence">
+        <div id="boot-text-container"><p id="boot-text"></p></div>
+        <div id="boot-loader-container" style="display:none;"><div id="boot-loader-bar"></div></div>
+        <p id="boot-status" style="display:none;"></p>
+    </div>
+
+    <div id="main-wrapper">
+        <canvas class="particles"></canvas>
+        <div class="content">
+            <div class="left-section">
+                <img src="./neoAvater.png" alt="华亭暂客头像" class="avatar">
+                <h1>
+                    <span class="revealable-line gold-text">这里是</span>
+                    <span class="revealable-line gold-text">华亭暂客</span>
+                    <span class="revealable-line gold-text">Tempsyche</span>
+                </h1>
+                <div class="education">
+                    <div class="edu-line">同济大学</div>
+                    <div class="edu-line">视觉传达设计与人工智能双学士学位在读</div>
+                </div>
+            </div>
+            <div class="right-section">
+                <div class="button-container">
+                    <button class="nav-button" onclick="location.href='poetry.html'">诗歌展示</button>
+                    <button class="nav-button" onclick="location.href='design.html'">设计展示</button>
+                    <button class="nav-button" onclick="location.href='projects.html'">最近项目</button>
+                    <button class="nav-button" onclick="location.href='maogai.html'">毛概课程专题</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // BOOT SEQUENCE LOGIC (Same as previous "炫技之作")
+        const bootSequenceDiv = document.getElementById('boot-sequence');
+        const bootTextEl = document.getElementById('boot-text');
+        const bootLoaderContainer = document.getElementById('boot-loader-container');
+        const bootLoaderBar = document.getElementById('boot-loader-bar');
+        const bootStatusEl = document.getElementById('boot-status');
+        const mainWrapper = document.getElementById('main-wrapper');
+
+        const bootMessages = [
+            { text: "INITIATING INTERFACE V3.2...\n", duration: 1500, type: 'text' }, // Version updated
+            { text: "LOADING CORE MODULES...\n", duration: 100, type: 'text' },
+            { type: 'loader', duration: 2000, steps: 20 },
+            { text: "PARTICLE MATRIX ONLINE]\n", duration: 1000, type: 'status' },
+            { text: "ESTABLISHING USER CONNECTION...\n", duration: 1500, type: 'text' },
+            { text: "CONNECTION SECURED.\n", duration: 1000, type: 'status' },
+            { text: "万一禅关砉然破，美人如玉剑如虹。\n\nWELCOME, TEMPSYCHE.\n", duration: 2000, type: 'textfinal' }
+        ];
+
+        let currentBootMsgIndex = 0;
+        let currentText = "";
+        let charIndex = 0;
+
+        function typeBootText() {
+            if (!bootTextEl) { // Graceful exit if element is missing
+                console.error("Boot text element not found.");
+                if(mainWrapper) mainWrapper.classList.add('loaded'); // Still try to load main content
+                return;
+            }
+            const message = bootMessages[currentBootMsgIndex];
+            if (charIndex < message.text.length) {
+                currentText += message.text[charIndex];
+                bootTextEl.textContent = currentText;
+                charIndex++;
+                setTimeout(typeBootText, Math.random() * 50 + 30); 
+            } else {
+                proceedBootSequence();
+            }
+        }
+        
+        function updateLoader(step, totalSteps, duration) {
+            const progress = (step / totalSteps) * 100;
+            if (bootLoaderBar) bootLoaderBar.style.width = progress + "%";
+            if (step < totalSteps) {
+                setTimeout(() => updateLoader(step + 1, totalSteps, duration), duration / totalSteps);
+            } else {
+                setTimeout(proceedBootSequence, 200); 
+            }
+        }
+
+        // 在脚本开始处添加访问状态检测
+        let isInitialVisit = !sessionStorage.getItem('alreadyBooted');
+
+        // 修改启动序列触发逻辑
+        if (bootSequenceDiv && isInitialVisit) {
+            typeBootText();
+            sessionStorage.setItem('alreadyBooted', 'true');
+        } else {
+            if(mainWrapper) {
+                mainWrapper.classList.add('loaded');
+                initializeMainContent();
+            }
+            if(bootSequenceDiv) bootSequenceDiv.style.display = 'none';
+        }
+
+        // 修改proceedBootSequence函数
+        function proceedBootSequence() {
+            charIndex = 0; 
+            currentBootMsgIndex++;
+            if (currentBootMsgIndex < bootMessages.length) {
+                const message = bootMessages[currentBootMsgIndex];
+                if (message.type === 'text' || message.type === 'textfinal') {
+                    if(bootLoaderContainer) bootLoaderContainer.style.display = 'none';
+                    if(bootStatusEl) bootStatusEl.style.display = 'none';
+                    if (message.type === 'textfinal') currentText = ""; 
+                    setTimeout(typeBootText, 500); 
+                } else if (message.type === 'loader') {
+                    if(bootTextEl) {
+                        currentText += "PROGRESS: ["; 
+                        bootTextEl.textContent = currentText;
+                    }
+                    if(bootLoaderContainer) bootLoaderContainer.style.display = 'block';
+                    if(bootLoaderBar) bootLoaderBar.style.width = "0%";
+                    updateLoader(1, message.steps, message.duration);
+                } else if (message.type === 'status') {
+                    if(bootTextEl) {
+                        currentText += message.text;
+                        bootTextEl.textContent = currentText; 
+                    }
+                    setTimeout(proceedBootSequence, message.duration);
+                }
+            } else {
+                setTimeout(() => {
+                    if(bootSequenceDiv) bootSequenceDiv.classList.add('hidden');
+                    if(mainWrapper) mainWrapper.classList.add('loaded');
+                    initializeMainContent();
+                }, 500); 
+            }
+        }
+        if (bootSequenceDiv) typeBootText(); 
+        else { // Fallback if boot sequence div is not present
+            if(mainWrapper) mainWrapper.classList.add('loaded');
+            initializeMainContent();
+        }
+
+
+        function initializeMainContent() {
+            const canvas = document.querySelector('.particles');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+            
+            const particles = [];
+            const particleCount = Math.min(120, Math.floor(window.innerWidth / 12)); 
+            const MAX_PLEXUS_DISTANCE = Math.min(window.innerWidth / 8, 100); 
+            const MOUSE_REPEL_RADIUS = 100;
+            const MOUSE_REPEL_STRENGTH = 0.8;
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                    this.baseX = this.x; this.baseY = this.y; 
+                    this.size = Math.random() * 2.2 + 0.8;
+                    this.speedX = (Math.random() * 0.8 - 0.4) * 0.6; this.speedY = (Math.random() * 0.8 - 0.4) * 0.6;
+                    this.opacity = Math.random() * 0.5 + 0.2; this.color = `rgba(0, 255, 255, ${this.opacity})`;
+                }
+                update() {
+                    let dxMouse = this.x - mouseX; let dyMouse = this.y - mouseY;
+                    let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                    if (distMouse < MOUSE_REPEL_RADIUS && mouseX > -1000) {
+                        const forceDirectionX = dxMouse / distMouse; const forceDirectionY = dyMouse / distMouse;
+                        const force = (MOUSE_REPEL_RADIUS - distMouse) / MOUSE_REPEL_RADIUS * MOUSE_REPEL_STRENGTH;
+                        this.x += forceDirectionX * force * 5; this.y += forceDirectionY * force * 5;
+                    } else {
+                        if (Math.abs(this.x - this.baseX) > 1 || Math.abs(this.y - this.baseY) > 1) {
+                             this.x -= (this.x - this.baseX) * 0.02; this.y -= (this.y - this.baseY) * 0.02;
+                        }
+                         this.baseX += this.speedX; this.baseY += this.speedY;
+                    }
+                    this.x += this.speedX; this.y += this.speedY;
+                    if (this.x > canvas.width + this.size) this.x = -this.size; else if (this.x < -this.size) this.x = canvas.width + this.size;
+                    if (this.y > canvas.height + this.size) this.y = -this.size; else if (this.y < -this.size) this.y = canvas.height + this.size;
+                    if(distMouse >= MOUSE_REPEL_RADIUS || mouseX <= -1000) { this.baseX = this.x; this.baseY = this.y; }
+                }
+                draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            }
+            for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); }
+
+            const mouseParticles = []; let mouseX = -1000, mouseY = -1000; let lastEmitTime = 0; const emitInterval = 35;
+            window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+            window.addEventListener('mouseout', () => { mouseX = -1000; mouseY = -1000; });
+
+            class MouseParticle { 
+                constructor(x,y){this.x=x;this.y=y;this.size=Math.random()*3+1.2;this.speedX=Math.random()*4-2;this.speedY=Math.random()*4-2;this.alpha=1;this.decay=Math.random()*0.02+0.045;this.colorBase=[255,215,0];}
+                update(){this.x+=this.speedX;this.y+=this.speedY;this.alpha-=this.decay;this.size*=0.965;}
+                draw(){ctx.fillStyle=`rgba(${this.colorBase[0]},${this.colorBase[1]},${this.colorBase[2]},${Math.max(0,this.alpha)})`;ctx.beginPath();ctx.arc(this.x,this.y,Math.max(0,this.size),0,Math.PI*2);ctx.fill();}
+            }
+            
+            const contentCard = document.querySelector('.content'); const MAX_TILT_EFFECT = 6; 
+            if (contentCard && mainWrapper) { // Ensure mainWrapper exists
+                mainWrapper.addEventListener('mousemove', (e) => {
+                    if (mainWrapper.classList.contains('loaded')) { 
+                        const rect = contentCard.getBoundingClientRect();
+                        const x = e.clientX - (rect.left + rect.width / 2); const y = e.clientY - (rect.top + rect.height / 2);
+                        const tiltX = (y / (rect.height / 2)) * MAX_TILT_EFFECT * -1; const tiltY = (x / (rect.width / 2)) * MAX_TILT_EFFECT;
+                        requestAnimationFrame(() => { contentCard.style.transform = `perspective(1500px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`; });
+                    }
+                });
+                 mainWrapper.addEventListener('mouseleave', () => {
+                    if (mainWrapper.classList.contains('loaded')) {
+                         requestAnimationFrame(() => { contentCard.style.transform = `perspective(1500px) rotateX(0deg) rotateY(0deg)`; });
+                    }
+                });
+            }
+
+            let animationFrameId;
+            function animate(currentTime) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (mouseX > -1000 && currentTime - lastEmitTime > emitInterval) {
+                    for (let i=0; i<2; i++) mouseParticles.push(new MouseParticle(mouseX, mouseY));
+                    lastEmitTime = currentTime;
+                }
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+                        if (dist < MAX_PLEXUS_DISTANCE) {
+                            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
+                            const opacity = 1 - (dist / MAX_PLEXUS_DISTANCE);
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${opacity * 0.35})`; ctx.lineWidth = 0.7; ctx.stroke();
+                        }
+                    }
+                }
+                particles.forEach(p => { p.update(); p.draw(); });
+                mouseParticles.forEach((p, i) => {
+                    p.update(); p.draw(); if (p.alpha <= 0 || p.size <= 0.1) { mouseParticles.splice(i, 1); }
+                });
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            
+            document.addEventListener("visibilitychange", () => {
+                if (!mainWrapper || !mainWrapper.classList.contains('loaded')) return; 
+                if (document.hidden) { cancelAnimationFrame(animationFrameId); } else { animate(performance.now()); }
+            });
+            // Start animation only if main content is already loaded (e.g., boot sequence finished)
+            if (mainWrapper && mainWrapper.classList.contains('loaded')) { 
+                 animate(performance.now());
+            }
+        }
+    </script>
+</body>
+</html>
+
+<style>
+    /* 新增教育信息对齐样式 */
+    .education {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 0.3rem;
+    }
+    
+    .edu-line {
+        line-height: 1.3;
+        font-size: 1.05rem;
+        width: 100%;
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+    font-size: clamp(1rem, 2.5vw, 1.15rem); color: var(--text-color-dim); margin-bottom: 2rem;
+            line-height: 1.7; letter-spacing: 0.8px; 
+            width: 100%; 
+            max-width: 620px; /* Slightly adjusted max-width for better balance */
+            opacity:0; animation: fadeInEducation 1s ease-out 1.5s forwards;
+            transform: translateZ(25px);
+            display: flex;
+            justify-content: center; /* Center the whole two-column block if max-width is less than parent */
+            align-items: flex-start; 
+            gap: 30px; /* Adjusted gap */
+        }
+        .education .edu-column {
+            flex: 1; /* Allow columns to take equal space */
+            /* flex-basis: calc(50% - 15px); Remove if using flex:1 and relying on gap */
+            text-align: left; /* BOTH columns left-aligned */
+        }
+        /* Removed: .education .edu-column:first-child { text-align: right; } */
+
+
+        @keyframes fadeInEducation { to { opacity: 1; } }
+
+        .button-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.8rem; width: 100%; max-width: 600px; margin-top: 1.5rem;
+            transform: translateZ(20px);
+        }
+
+        .nav-button {
+            font-family: var(--font-button); padding: 15px 22px;
+            background: rgba(0, 255, 255, 0.05); 
+            border: 2px solid var(--border-color-hud);
+            color: var(--text-color-dim); font-size: 1.05rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative; overflow: hidden; border-radius: 4px;
+            box-shadow: var(--glow-box-primary-inset);
+            animation: fadeInButton 0.5s ease-out forwards, pulseButtonBorder 3s infinite alternate-reverse;
+            opacity:0; transform: translateY(10px) translateZ(10px); 
+        }
+        .button-container .nav-button:nth-child(1) { animation-delay: 1.8s, 1.8s; }
+        .button-container .nav-button:nth-child(2) { animation-delay: 1.95s, 1.95s; }
+        .button-container .nav-button:nth-child(3) { animation-delay: 2.1s, 2.1s; }
+        .button-container .nav-button:nth-child(4) { animation-delay: 2.25s, 2.25s; }
+
+        @keyframes fadeInButton { to { opacity: 1; transform: translateY(0) translateZ(10px); } }
+        @keyframes pulseButtonBorder {
+            from { border-color: var(--border-color-hud); box-shadow: var(--glow-box-primary-inset), 0 0 3px rgba(0,255,255,0.2); }
+            to { border-color: var(--border-color-hud-active); box-shadow: var(--glow-box-primary-inset), 0 0 8px var(--primary-glow-color), 0 0 3px var(--primary-glow-color); }
+        }
+
+        .nav-button::before { 
+            content: ''; position: absolute; top: 0; left: -160%; width: 80%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            transform: skewX(-25deg); transition: left 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .nav-button:hover {
+            color: var(--primary-glow-color); border-color: var(--border-color-hud-active);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: var(--glow-box-primary), var(--glow-box-primary-inset);
+            transform: translateY(-4px) translateZ(15px) scale(1.03); 
+            animation-play-state: paused; 
+        }
+        .nav-button:hover::before { left: 160%; }
+        .nav-button:active { transform: translateY(-1px) translateZ(12px) scale(0.98); }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        #boot-sequence {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #010008; 
+            z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            font-family: var(--font-mono); color: var(--text-color-boot);
+            transition: opacity 0.8s ease-out 0.5s, visibility 0.8s ease-out 0.5s; 
+        }
+        #boot-sequence.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        #boot-text-container { margin-bottom: 20px; min-height: 50px; }
+        #boot-text { font-size: 1.2em; white-space: pre; text-align: center; }
+        #boot-text::after { content: '_'; animation: blinkCursor 0.7s infinite step-end; }
+        #boot-loader-container { width: 60%; max-width: 400px; height: 15px; border: 1px solid var(--text-color-boot); margin-bottom: 20px; padding: 2px; }
+        #boot-loader-bar { width: 0%; height: 100%; background: var(--text-color-boot); transition: width 0.2s linear; }
+        #boot-status { font-size: 0.9em; color: var(--text-color-dim); }
+        @keyframes blinkCursor { 50% { opacity: 0; } }
+
+        @media (max-width: 900px) {
+            .content { flex-direction: column; align-items: center; padding: 15px; }
+            .left-section, .right-section { min-width: 95%; margin: 15px 0; }
+            .button-container { grid-template-columns: 1fr; max-width: 380px; }
+            /* MODIFIED: .education responsive stacking */
+            .education { flex-direction: column; align-items: center; gap: 10px; text-align:center; max-width: 90%;}
+            .education .edu-column { flex-basis: auto; width: auto; text-align: center; max-width: 100%; }
+        }
+         @media (max-width: 480px) {
+            .avatar { width: 110px; height: 110px; }
+            h1 .revealable-line.gold-text { font-size: 1.8rem; } /* Adjust Heiti size for mobile */
+            .education { font-size: 0.85rem; gap: 5px; }
+            .nav-button { font-size: 0.9rem; padding: 12px 15px; letter-spacing: 1.5px; }
+            #boot-text { font-size: 1em; }
+         }
+    </style>
+</html>

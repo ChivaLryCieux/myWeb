@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实践报告互动展示：追寻初心，砥砺前行</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Application Structure Plan: A thematic, multi-section single-page application. 
+        1. Introduction: Sets the stage.
+        2. Historical Significance: Covers CCP 4th Congress and Zunyi Conference, with interactive elements for key takeaways.
+        3. Youth & Heritage (Survey): Presents findings on youth preferences for cultural products using interactive text.
+        4. AI-Powered Creation: Showcases the AI-assisted poem and cultural product designs with an image gallery.
+        5. Reflections & Outlook: Concludes with key insights.
+        This structure is chosen for a logical flow from historical context to modern application and future outlook, enhancing usability and exploration over a linear report format.
+    -->
+    <!-- Visualization & Content Choices:
+        - Historical Info (CCP 4th, Zunyi): Interactive text blocks/cards (HTML/Tailwind/JS) for concise information. Interaction: Click to expand. Justification: Clear presentation of facts.
+        - Youth Survey: Interactive keyword display (HTML/Tailwind/JS). Interaction: Hover effects. Justification: Engaging display of qualitative findings.
+        - AI Poem: Prominent text display (HTML/Tailwind). Interaction: Minimal, focus on readability. Justification: Direct showcase.
+        - AI Products: Image gallery/grid (HTML/Tailwind/JS for modal). Interaction: Click for larger view. Justification: Visual display of designs.
+        - Library/Method: Vanilla JS for all interactions.
+    -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FFFAF0; /* bg-amber-50 equivalent */
+            color: #262626; /* text-neutral-800 equivalent */
+        }
+        .nav-link {
+            @apply px-4 py-2 text-sm font-medium text-neutral-700 hover:text-red-700 transition-colors duration-300;
+        }
+        .section-title {
+            @apply text-3xl font-bold text-red-700 mb-8 text-center;
+        }
+        .card {
+            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+        }
+        .keyword-tag {
+            @apply inline-block bg-red-100 text-red-700 text-sm font-medium mr-2 mb-2 px-3 py-1 rounded-full hover:bg-red-200 transition-colors duration-200 cursor-pointer;
+        }
+        .poem-container {
+            @apply bg-white p-8 rounded-lg shadow-lg text-center my-8 mx-auto max-w-2xl;
+            border-left: 5px solid #B91C1C; /* border-red-700 */
+        }
+        .product-card {
+            @apply bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300;
+        }
+        .product-image {
+            @apply w-full h-56 object-cover;
+        }
+        /* Modal styles */
+        .modal {
+            @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0 pointer-events-none;
+        }
+        .modal-content {
+            @apply bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+        }
+        .modal.active {
+            @apply opacity-100 pointer-events-auto;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-center items-center h-16">
+                <a href="#hero" class="nav-link">引言</a>
+                <a href="#history" class="nav-link">历史回响</a>
+                <a href="#youth-survey" class="nav-link">青年之声</a>
+                <a href="#ai-creation" class="nav-link">智创未来</a>
+                <a href="#reflections" class="nav-link">启示与展望</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-amber-100 via-red-50 to-amber-100 p-8">
+        <div class="text-center max-w-3xl">
+            <h1 class="text-5xl font-bold text-red-800 mb-6">追寻初心，砥砺前行</h1>
+            <p class="text-xl text-neutral-700 mb-4">
+                一份关于中共四大百年与遵义会议九十周年的实践报告互动展示。
+            </p>
+            <p class="text-lg text-neutral-600">
+                本应用旨在通过互动方式，回顾历史，聚焦青年视角，展示人工智能在传承红色文化中的创新实践，并展望未来。
+            </p>
+        </div>
+    </section>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-16">
+
+        <section id="history">
+            <h2 class="section-title">历史回响</h2>
+            <div class="text-center mb-10 max-w-3xl mx-auto">
+                <p class="text-neutral-600 leading-relaxed">
+                    本部分回顾中共四大与遵义会议这两大里程碑事件。它们不仅塑造了党的早期发展轨迹，其精神内核至今仍指引我们前行。通过了解这些历史，我们可以更好地理解中国共产党如何探索并最终找到符合中国国情的革命道路。
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-2xl font-semibold text-red-700 mb-4">中国共产党第四次全国代表大会</h3>
+                    <p class="text-neutral-600 mb-3">中共四大（1925年1月）在党的早期发展中具有关键地位。它首次明确提出了无产阶级在民主革命中的领导权问题，并强调了工农联盟的重要性。</p>
+                    <ul class="list-disc list-inside text-neutral-700 space-y-1">
+                        <li><strong>核心成果：</strong>
+                            <ul class="list-circle list-inside pl-4 text-sm">
+                                <li>无产阶级领导权：首次明确提出。</li>
+                                <li>工农联盟：强调其极端重要性。</li>
+                                <li>党的建设：加强组织与群众工作。</li>
+                                <li>统一战线：初步思想萌芽。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <button onclick="toggleDetails('details-ccp4')" class="mt-4 text-sm text-red-600 hover:text-red-800 font-medium">查看更多 &rarr;</button>
+                    <div id="details-ccp4" class="hidden mt-3 text-sm text-neutral-500 transition-all duration-500 ease-in-out">
+                        <p>中共四大深刻分析了中国社会性质和革命形势，为后续革命斗争指明了方向，对党的理论成熟和组织发展起到了重要推动作用。</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-2xl font-semibold text-red-700 mb-4">遵义会议精神</h3>
+                    <p class="text-neutral-600 mb-3">遵义会议（1935年1月）是中国共产党历史上一个生死攸关的转折点。会议确立了毛泽东同志在党和红军中的领导地位，挽救了党、红军和中国革命。</p>
+                    <ul class="list-disc list-inside text-neutral-700 space-y-1">
+                        <li><strong>核心要义：</strong>
+                            <ul class="list-circle list-inside pl-4 text-sm">
+                                <li>坚持真理，修正错误。</li>
+                                <li>独立自主，实事求是。</li>
+                                <li>团结奋斗，顾全大局。</li>
+                                <li>坚定信念，勇往直前。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <button onclick="toggleDetails('details-zunyi')" class="mt-4 text-sm text-red-600 hover:text-red-800 font-medium">查看更多 &rarr;</button>
+                    <div id="details-zunyi" class="hidden mt-3 text-sm text-neutral-500 transition-all duration-500 ease-in-out">
+                        <p>遵义会议的精神是中国共产党宝贵的精神财富，体现了党自我革命的勇气和将马克思主义基本原理与中国具体实际相结合的智慧。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="youth-survey">
+            <h2 class="section-title">青年之声：文创调研</h2>
+            <div class="text-center mb-10 max-w-3xl mx-auto">
+                <p class="text-neutral-600 leading-relaxed">
+                    为了解当代青年对党史纪念品形式的偏好，我们进行了线上采访。调研结果显示，青年群体对富有创意且实用的文创产品抱有浓厚兴趣。本部分将展示调研中青年群体关注的主要方面，这些发现为我们如何更好地传承红色文化提供了新的视角。
+                </p>
+            </div>
+            <div class="card">
+                <h3 class="text-xl font-semibold text-red-700 mb-4 text-center">青年对党史文创产品的期待</h3>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <span class="keyword-tag" title="同学们认为纪念品应具备实际使用价值，而非纯观赏。">实用性与设计感兼具</span>
+                    <span class="keyword-tag" title="融入青年流行文化元素，如国潮、卡通等，更易引起共鸣。">青年文化元素</span>
+                    <span class="keyword-tag" title="纪念品若能承载党史故事或提供互动体验，将更受欢迎。">故事性与互动性</span>
+                    <span class="keyword-tag" title="对电子书签、主题壁纸等数字形式的纪念品也表现出兴趣。">数字化纪念品</span>
+                    <span class="keyword-tag" title="希望产品能巧妙融入日常生活，而非仅作收藏。">融入日常生活</span>
+                    <span class="keyword-tag" title="期待更多创新形式，打破传统纪念品刻板印象。">创新形式</span>
+                </div>
+                <p class="text-center text-neutral-500 mt-6 text-sm">
+                    调研表明，青年一代期望通过更现代、更贴近生活的方式接触和理解党史文化。
+                </p>
+            </div>
+        </section>
+
+        <section id="ai-creation">
+            <h2 class="section-title">智创未来：AI实践</h2>
+            <div class="text-center mb-10 max-w-3xl mx-auto">
+                <p class="text-neutral-600 leading-relaxed">
+                    本部分展示了运用人工智能（AI）进行遵义会议纪念诗歌创作和文创产品设计的实践尝试。这些探索旨在将红色文化与前沿科技相结合，以新颖的形式吸引青年，并获得了同学们的积极评价，显示了科技赋能文化传承的巨大潜力。
+                </p>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-semibold text-red-700 mb-6 text-center">AI辅助创作纪念诗歌：《转折的棱镜》</h3>
+                <div class="poem-container">
+                    <h4 class="text-xl font-medium text-neutral-800 mb-1">《转折的棱镜》</h4>
+                    <pre class="text-neutral-700 whitespace-pre-wrap text-left md:text-center text-sm md:text-base leading-relaxed">
+当所有的指针都开始锈蚀
+赤水河在暗夜里收紧血管
+泥泞咬住草鞋，预言在弹匣中结霜
+只有饥饿的地图，折叠成悬崖
+
+直到一场雪落在遵义的门槛
+煤油灯拨亮草图上每一道皱褶
+有人拆解锁链的重量，把火种
+重新排列：让灰烬学会倒流
+
+从此，暗河有了星辰的走向
+篝火在裂痕处锻打新的经纬
+而那颗星辰始终悬在最高的桅杆
+成为所有黎明破茧时
+那道不肯弯曲的光线
+                    </pre>
+                </div>
+            </div>
+
+            <div class="mt-12">
+                <h3 class="text-2xl font-semibold text-red-700 mb-8 text-center">AI辅助设计文创产品</h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="product-card" onclick="showProductModal('“转折之光”主题书签套装', 'product_bookmark.jpg', '这套书签以遵义会议四大核心精神为主题，融合红星、齿轮等元素，象征革命转折与前进。背面印有纪念诗歌节选。')">
+                        <img src="https://placehold.co/400x300/FFEBEE/B71C1C?text=书签套装" alt="“转折之光”主题书签套装" class="product-image" onerror="this.src='https://placehold.co/400x300/CCCCCC/B71C1C?text=Image+Error'">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-neutral-800">“转折之光”主题书签套装</h4>
+                            <p class="text-sm text-neutral-600">AI设计，承载核心精神。</p>
+                        </div>
+                    </div>
+                    <div class="product-card" onclick="showProductModal('“长征印记”纪念帆布包', 'product_bag.jpg', '帆布包以艺术化长征路线图为主要元素，突出遵义节点与红星。风格简约，富有历史感。')">
+                        <img src="https://placehold.co/400x300/FFF3E0/D84315?text=帆布包" alt="“长征印记”纪念帆布包" class="product-image" onerror="this.src='https://placehold.co/400x300/CCCCCC/B71C1C?text=Image+Error'">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-neutral-800">“长征印记”纪念帆布包</h4>
+                            <p class="text-sm text-neutral-600">AI勾勒，艺术化长征路线。</p>
+                        </div>
+                    </div>
+                    <div class="product-card" onclick="showProductModal('“信念之火”主题马克杯', 'product_mug.jpg', '马克杯杯身图案为遵义会议会址剪影与燃烧的“信念之火”，象征革命火种重燃。')">
+                        <img src="https://placehold.co/400x300/FCE4EC/880E4F?text=马克杯" alt="“信念之火”主题马克杯" class="product-image" onerror="this.src='https://placehold.co/400x300/CCCCCC/B71C1C?text=Image+Error'">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-neutral-800">“信念之火”主题马克杯</h4>
+                            <p class="text-sm text-neutral-600">AI创作，信念之火永存。</p>
+                        </div>
+                    </div>
+                    <div class="product-card" onclick="showProductModal('“时代回响”系列明信片', 'product_postcard.jpg', '系列明信片正面为AI生成的遵义会议相关艺术图像，背面可书写并附带二维码链接历史介绍。')">
+                        <img src="https://placehold.co/400x300/E8EAF6/1A237E?text=明信片" alt="“时代回响”系列明信片" class="product-image" onerror="this.src='https://placehold.co/400x300/CCCCCC/B71C1C?text=Image+Error'">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-neutral-800">“时代回响”系列明信片</h4>
+                            <p class="text-sm text-neutral-600">AI图像，连接历史与现代。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reflections">
+            <h2 class="section-title">启示与展望</h2>
+            <div class="text-center mb-10 max-w-3xl mx-auto">
+                 <p class="text-neutral-600 leading-relaxed">
+                    此次实践调研，从历史回顾到青年访谈，再到AI创作尝试，为我们揭示了新时代传承红色文化的多重路径。科技的进步为党史教育提供了前所未有的机遇，使其能够以更生动、更互动的方式触达年轻一代。
+                </p>
+            </div>
+            <div class="card space-y-4">
+                <h3 class="text-xl font-semibold text-red-700 text-center">传承红色基因，拥抱创新未来</h3>
+                <p class="text-neutral-700">通过本次实践，我们深刻认识到：</p>
+                <ul class="list-disc list-inside text-neutral-600 space-y-2 pl-4">
+                    <li><strong>科技赋能是关键：</strong> 人工智能等技术能为党史教育注入新活力，创造更具吸引力的内容和形式。</li>
+                    <li><strong>青年视角很重要：</strong> 了解青年群体的文化偏好和审美趣味，是提升党史教育有效性的前提。</li>
+                    <li><strong>互动体验促深化：</strong> 参与式、体验式的学习方式比单向灌输更能激发青年人的学习兴趣和情感共鸣。</li>
+                    <li><strong>故事化叙事有力量：</strong> 将宏大历史叙事转化为生动故事，更能打动人心，传递精神价值。</li>
+                    <li><strong>价值引领是核心：</strong> 无论形式如何创新，党史教育的根本在于传递核心价值观，坚定理想信念。</li>
+                </ul>
+                <p class="text-neutral-700 mt-4">
+                    展望未来，我们应继续探索科技与人文的深度融合，开发更多富有创意、贴近生活的党史教育产品和服务，让红色基因在新时代焕发璀璨光芒，激励一代又一代青年为实现中华民族伟大复兴的中国梦而努力奋斗。
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-neutral-800 text-neutral-300 text-center p-6 mt-16">
+        <p class="text-sm">&copy; 2025 实践报告互动展示。基于实践报告内容创作。作者：罗锐阳</p>
+    </footer>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-2xl font-semibold text-red-700"></h3>
+                <button onclick="closeProductModal()" class="text-neutral-500 hover:text-neutral-800 text-2xl">&times;</button>
+            </div>
+            <img id="modalImage" src="" alt="产品大图" class="w-full h-auto max-h-[60vh] object-contain mb-4 rounded" onerror="this.src='https://placehold.co/600x400/CCCCCC/B71C1C?text=Image+Load+Error'">
+            <p id="modalDescription" class="text-neutral-700"></p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Toggle details for historical sections
+        function toggleDetails(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.toggle('hidden');
+            }
+        }
+
+        // Modal functionality
+        const modal = document.getElementById('productModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalImage = document.getElementById('modalImage');
+        const modalDescription = document.getElementById('modalDescription');
+        const placeholderBaseUrl = 'https://placehold.co/600x400';
+        const productImages = {
+            'product_bookmark.jpg': `${placeholderBaseUrl}/FFEBEE/B71C1C?text=书签套装预览`,
+            'product_bag.jpg': `${placeholderBaseUrl}/FFF3E0/D84315?text=帆布包预览`,
+            'product_mug.jpg': `${placeholderBaseUrl}/FCE4EC/880E4F?text=马克杯预览`,
+            'product_postcard.jpg': `${placeholderBaseUrl}/E8EAF6/1A237E?text=明信片预览`
+        };
+
+        function showProductModal(title, imageName, description) {
+            modalTitle.textContent = title;
+            modalImage.src = productImages[imageName] || `${placeholderBaseUrl}/CCCCCC/B71C1C?text=Image+Not+Found`;
+            modalDescription.textContent = description;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function closeProductModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore background scroll
+        }
+
+        // Close modal on escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.classList.contains('active')) {
+                closeProductModal();
+            }
+        });
+
+        // Close modal on outside click
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeProductModal();
+            }
+        });
+
+    </script>
+</body>
+</html>

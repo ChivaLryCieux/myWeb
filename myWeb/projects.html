@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./neoAvater.ico" type="image/x-icon">
+    <title>最近项目 - 华亭暂客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700&family=Exo+2:wght@300;400;700&family=Roboto:wght@300;400&family=Gruppo&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="subpage-bg"></div>
+    <div id="main-wrapper">
+        <canvas class="particles"></canvas>
+        <div class="content subpage-content">
+            <h1 class="content-title" style="position: absolute; left: 5%; top: 0; margin: 20px 0 0 0;">最近项目</h1>
+            <div class="back-button-container" style="position: absolute; left: 5%; top: 70px;">
+                <button class="nav-button" onclick="location.href='index.html'">返回首页</button>
+            </div>
+            
+            <!-- 新增项目描述 -->
+            <div style="position: absolute; right: 5%; top: 20%; width: 40%;">
+                <p style="color: rgba(255,255,255,0.9); line-height: 1.6; font-size: 1.1rem;">
+                    最近在使用LÖVE2d引擎做简单的小游戏，安装包之后会上传在这里，可以提前找我试玩。
+                </p>
+                <p style="margin-top: 1.5rem; color: rgba(255,255,255,0.9)  ; font-size: 1.1rem;">
+                    另外，也在学习Tableau可视化工具
+                </p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // 初始化主内容
+        const mainWrapper = document.getElementById('main-wrapper');
+        if(mainWrapper) mainWrapper.classList.add('loaded');
+        initializeMainContent();
+    </script>
+</body>
+</html>

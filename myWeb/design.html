@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./neoAvater.ico" type="image/x-icon">
+    <title>设计展示 - 华亭暂客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="subpage-bg"></div>
+    <div id="main-wrapper">
+        <canvas class="particles"></canvas>
+        <div class="content subpage-content">
+            <h1 class="content-title" style="position: absolute; left: 5%; top: 0; margin: 20px 0 0 0;">设计展示</h1>
+            <div class="back-button-container" style="position: absolute; left: 5%; top: 70px;">
+                <button class="nav-button" onclick="location.href='index.html'">返回首页</button>
+            </div>
+            
+            <!-- 新增设计作品展示 -->
+            <div style="position: absolute; right: 5%; top: 20%; width: 40%; display: flex; flex-wrap: wrap; gap: 1.5rem;">
+                <div style="flex: 1; min-width: 200px;">
+                    <img src="./IMG/bushnell.jpg" alt="Bushnell纪念设计" style="width: 100%; height: auto; border: 1px solid rgba(0,255,255,0.3);">
+                    <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-top: 0.8rem; line-height: 1.4;">
+                        纪念bushnell<br>2024早春
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <img src="./IMG/symbol.jpg" alt="设计四秩序" style="width: 100%; height: auto; border: 1px solid rgba(0,255,255,0.3);">
+                    <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-top: 0.8rem; line-height: 1.4;">
+                        设计四秩序：符号<br>2024春
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <img src="./IMG/hanggao.jpg" alt="航高设计封面" style="width: 47%; height: auto; border: 1px solid rgba(0,255,255,0.3);">
+                    <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-top: 0.8rem; line-height: 1.4;">
+                        为航高设计的资料封面<br>滋味庞杂<br>2024隆冬
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
